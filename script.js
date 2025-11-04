@@ -1,13 +1,21 @@
+let spinner = null;
+
+
+
+
+
 // Fetches a list of upcoming space launches from the SpaceDevs API
 // and passes the results to a callback function
 function getUpcomingLaunches(callback) {
-  const xhr = new XMLHttpRequest();
-  xhr.open("GET", "https://lldev.thespacedevs.com/2.3.0/launches/upcoming/");
-  xhr.onload = function () {
-    const data = JSON.parse(xhr.responseText); // Parse the JSON response
-    callback(data.results); // Pass the results array to the callback
-  };
-  xhr.send(); // Send the HTTP request
+  axios.get("https://lldev.thespacedevs.com/2.3.0/launches/upcoming/").then(response => callback(response.data.results)).catch(err => console.log(`An error has occurred : ${err}`));
+
+  // const xhr = new XMLHttpRequest();
+  // xhr.open("GET", "https://lldev.thespacedevs.com/2.3.0/launches/upcoming/");
+  // xhr.onload = function () {
+  //   const data = JSON.parse(xhr.responseText); // Parse the JSON response
+  //   callback(data.results); // Pass the results array to the callback
+  // };
+  // xhr.send(); // Send the HTTP request
 }
 
 // Populates a dropdown menu with upcoming launch names
@@ -23,18 +31,20 @@ function populateDropdown(launches) {
   });
 }
 
-// Fetch and display the dropdown when the page loads
-getUpcomingLaunches(populateDropdown);
-
 // Fetches details about a specific launch by ID and passes it to a callback
+
 function getLaunchDetails(launchId, callback) {
-  const xhr = new XMLHttpRequest();
-  xhr.open("GET", `https://lldev.thespacedevs.com/2.3.0/launches/${launchId}/`);
-  xhr.onload = function () {
-    const launch = JSON.parse(xhr.responseText); // Parse JSON response
-    callback(launch); // Pass launch details to callback
-  };
-  xhr.send(); // Send the HTTP request
+    spinner.style.display = 'block';
+  axios.get(`https://lldev.thespacedevs.com/2.3.0/launches/${launchId}/`).then(response => callback(response.data)).catch(err => console.log(`An error has occurred : ${err}`)).finally(() => spinner.style.display = 'none');
+
+
+  // const xhr = new XMLHttpRequest();
+  // xhr.open("GET", `https://lldev.thespacedevs.com/2.3.0/launches/${launchId}/`);
+  // xhr.onload = function () {
+  //   const launch = JSON.parse(xhr.responseText); // Parse JSON response
+  //   callback(launch); // Pass launch details to callback
+  // };
+  // xhr.send(); // Send the HTTP request
 }
 
 // Add event listener to dropdown to respond when a user selects a launch
@@ -43,6 +53,7 @@ document.getElementById("launchDropdown").addEventListener("change", function ()
 
   // Fetch and display launch details
   getLaunchDetails(launchId, function (launch) {
+
     const missionDetails = document.getElementById("missionDetails");
     const astronautsDiv = document.getElementById("astronauts"); // Not used here, but may be used later
 
@@ -63,3 +74,11 @@ document.getElementById("launchDropdown").addEventListener("change", function ()
     rocket.appendChild(rocketImage); // Add image to the DOM
   });
 });
+
+
+
+// Fetch and display the dropdown when the page loads
+getUpcomingLaunches(populateDropdown);
+
+spinner = document.getElementById("spinner");
+spinner.style.display = 'none';
